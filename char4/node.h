@@ -41,8 +41,9 @@ public:
 class NIdentifier : public NExpression {
 public:
 	std::string idName;
-
-	NIdentifier(const std::string& idName) : idName(idName) { }
+	int comp;
+	NIdentifier(const std::string& idName) : idName(idName) { comp = -1;}
+	NIdentifier(const std::string& idName, int comp) : idName(idName) , comp(comp){ }
 	virtual llvm::Value* codeGen(CodeGenContext& context);
 };
 
@@ -83,24 +84,22 @@ public:
 class NVariableDeclaration : public NStatement {
 public:
 	const NIdentifier& type;
-	NIdentifier& id;
+	NIdentifier id;
 	NExpression *assignmentExpr;
-	NVariableDeclaration(const NIdentifier& type, NIdentifier& id) :
-		type(type), id(id) { assignmentExpr = NULL;  }
-	NVariableDeclaration(const NIdentifier& type, NIdentifier& id, NExpression *assignmentExpr) :
+	NVariableDeclaration(const NIdentifier& type, NIdentifier id) :
+		type(type), id(id) { assignmentExpr = NULL; }
+	NVariableDeclaration(const NIdentifier& type, NIdentifier id, NExpression *assignmentExpr) :
 		type(type), id(id), assignmentExpr(assignmentExpr) {  }
 //	NVariableDeclaration(NIdentifier &id) : id(id) { type = NIdentifier("char4"); }
-//	virtual llvm::Value* codeGen(CodeGenContext& context);
+	virtual llvm::Value* codeGen(CodeGenContext& context);
 };
 
 class NIfBlock : public NStatement {
-private:
-	std::string name;
 public:
 	NExpression *expression;
 	NBlock &block;
 	NIfBlock(NExpression *expression, NBlock& block) :
-		expression(expression), block(block) { std::cout<<"IfBlock"<<std::endl; name = "NIfBlock"; }
+		expression(expression), block(block) {  }
 	virtual llvm::Value* codeGen(CodeGenContext& context);
 };
 
@@ -110,6 +109,7 @@ public:
 	VariableList arguments;
 	NBlock& block;
 	NFunctionDeclaration(const NIdentifier& id,
-			const VariableList& arguments, NBlock& block) :
-		id(id), arguments(arguments), block(block) {}
+			VariableList arguments, NBlock& block) :
+		id(id), arguments(arguments), block(block) { }
+		virtual llvm::Value* codeGen(CodeGenContext& context);
 };

@@ -11,8 +11,8 @@ int main(int argc, char **argv)
 	llvm::InitializeNativeTarget();
 	llvm::InitializeNativeTargetAsmPrinter();
 	llvm::InitializeNativeTargetAsmParser();
-	std::string ifstr("ifstr");
-	CodeGenContext cgCtx(ifstr);
+	std::string opt1("opt1");
+	CodeGenContext cgCtx(opt1);
 	cgCtx.generateCode(*programBlock);
 	cgCtx.module->print(llvm::errs(), nullptr);
 	return 0;

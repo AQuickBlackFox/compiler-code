@@ -1,7 +1,7 @@
 %{
 	#include "node.h"
-        #include <cstdio>
-        #include <cstdlib>
+  #include <cstdio>
+  #include <cstdlib>
 	NBlock *programBlock; /* the top level root node of our final AST */
 
 	extern int yylex();
@@ -31,6 +31,7 @@
 %token <token> TLPAREN TRPAREN TLBRACE TRBRACE TCOMMA TDOT
 %token <token> TPLUS TMINUS TMUL TDIV
 %token <token> TIF TDEVICE TCHAR4
+%token <token> TXYZW TWZYX
 
 /* Define the type of node our nonterminal symbols represent.
    The types refer to the %union declaration above. Ex: when
@@ -68,12 +69,12 @@ block : TLBRACE stmts TRBRACE { $$ = $2; }
 	  ;
 
 var_decl : ident ident { $$ = new NVariableDeclaration(*$1, *$2); }
-		| TCHAR4 ident { $$ = new NVariableDeclaration(*$2, *new NIdentifier("char4")); delete $2; }
+		| TCHAR4 ident { $$ = new NVariableDeclaration(*new NIdentifier("char4"), *$2); delete $2; }
 		 | ident ident TEQUAL expr { $$ = new NVariableDeclaration(*$1, *$2, $4); }
 		 ;
 
-func_decl: TDEVICE TCHAR4 ident TLPAREN func_decl_args TRPAREN block 
-                { $$ = new NFunctionDeclaration(*$3, *$5, *$7); delete $5; printf("Inside FuncDecl\n"); }
+func_decl: TDEVICE TCHAR4 ident TLPAREN func_decl_args TRPAREN block
+                { $$ = new NFunctionDeclaration(*$3, *$5, *$7); delete $5;  }
                ;
 
 func_decl_args: { $$ = new VariableList(); }
@@ -83,6 +84,8 @@ func_decl_args: { $$ = new VariableList(); }
 if_block : TIF TLPAREN expr TRPAREN  block  { $$ = new NIfBlock($3, *$5); }
 
 ident : TIDENTIFIER { $$ = new NIdentifier(*$1); delete $1; }
+			|	TIDENTIFIER TDOT TXYZW { $$ = new NIdentifier(*$1, TXYZW); delete $1; }
+			|	TIDENTIFIER TDOT TWZYX { $$ = new NIdentifier(*$1, TWZYX); delete $1; }
 	  ;
 
 numeric : TINTEGER { $$ = new NInteger(atol($1->c_str())); delete $1; }

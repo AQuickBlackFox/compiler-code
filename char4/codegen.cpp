@@ -3,6 +3,7 @@
 #include "parser.hpp"
 
 void CodeGenContext::generateCode(NBlock& root) {
+  /*
   std::vector<llvm::Type*> args;
   args.push_back(llvm::Type::getInt8PtrTy(ctx));
 
@@ -23,6 +24,7 @@ void CodeGenContext::generateCode(NBlock& root) {
 
   entry = llvm::BasicBlock::Create(ctx, "", func);
   mainFunction = func;
+  */
   root.codeGen(*this);
 }
 
@@ -54,6 +56,11 @@ llvm::Value* NExpressionStatement::codeGen(CodeGenContext& context) {
   return expression.codeGen(context);
 }
 
+llvm::Value* NVariableDeclaration::codeGen(CodeGenContext& context) {
+  std::cout<<"Variable Declaration "<<type.idName<<" "<<id.idName<<std::endl;
+  return nullptr;
+}
+
 llvm::Value* NBlock::codeGen(CodeGenContext& context) {
   StatementList::const_iterator it;
   llvm::Value* last = NULL;
@@ -74,4 +81,24 @@ llvm::Value* NBinaryOperator::codeGen(CodeGenContext& context) {
                               );
   }
   return NULL;
+}
+
+llvm::Value* NFunctionDeclaration::codeGen(CodeGenContext& context) {
+  std::cout<<"In function generation"<<std::endl;
+
+  std::vector<llvm::Type*> argTypes(arguments.size(), llvm::Type::getInt32Ty(ctx));
+
+  llvm::FunctionType *FT = llvm::FunctionType::get(llvm::Type::getInt32Ty(ctx), argTypes, false);
+
+  llvm::Function *F = llvm::Function::Create(FT, llvm::Function::ExternalLinkage, id.idName, context.module);
+
+  unsigned Idx = 0;
+  for(auto &Arg : F->args()) {
+    Arg.setName(arguments[Idx++]->id.idName);
+  }
+
+  llvm::BasicBlock *BB = llvm::BasicBlock::Create(ctx, "entry", F);
+  builder.SetInsertPoint(BB);
+
+  return nullptr;
 }

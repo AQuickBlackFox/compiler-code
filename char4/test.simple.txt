@@ -1,3 +1,4 @@
-if (1 == 0) {}
-
-if (0 == 0) {}
+__device__ char4 opt1(char4 a) {
+  char4 b
+  b.xyzw = a.wzyx
+}
