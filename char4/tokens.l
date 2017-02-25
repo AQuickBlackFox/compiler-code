@@ -15,8 +15,8 @@
 
 "__device__"           SAVE_TOKEN; return TDEVICE;
 "char4"                SAVE_TOKEN; return TCHAR4;
-"xyzw"                 return TOKEN(TXYZW);
-"wzyx"                 return TOKEN(TWZYX);
+".xyzw"                 return TOKEN(TXYZW);
+".wzyx"                 return TOKEN(TWZYX);
 
 [a-zA-Z_][a-zA-Z0-9_]*  SAVE_TOKEN; return TIDENTIFIER;
 [0-9]+\.[0-9]* 		SAVE_TOKEN; return TDOUBLE;
@@ -35,7 +35,6 @@
 "{"         						return TOKEN(TLBRACE);
 "}"					          	return TOKEN(TRBRACE);
 
-"."         						return TOKEN(TDOT);
 ","				          		return TOKEN(TCOMMA);
 
 "+"				          		return TOKEN(TPLUS);

@@ -41,9 +41,9 @@ public:
 class NIdentifier : public NExpression {
 public:
 	std::string idName;
-	int comp;
-	NIdentifier(const std::string& idName) : idName(idName) { comp = -1;}
-	NIdentifier(const std::string& idName, int comp) : idName(idName) , comp(comp){ }
+	int comp ;
+	NIdentifier(const std::string& idName) : idName(idName) { comp = 0; }
+	NIdentifier(const std::string& idName, const int& comp) : idName(idName) , comp(comp){  }
 	virtual llvm::Value* codeGen(CodeGenContext& context);
 };
 
@@ -63,7 +63,7 @@ public:
 	NExpression& rhs;
 	NAssignment(NIdentifier& lhs, NExpression& rhs) :
 		lhs(lhs), rhs(rhs) {  }
-//	virtual llvm::Value* codeGen(CodeGenContext& context);
+	virtual llvm::Value* codeGen(CodeGenContext& context);
 };
 
 class NBlock : public NExpression {
@@ -90,7 +90,6 @@ public:
 		type(type), id(id) { assignmentExpr = NULL; }
 	NVariableDeclaration(const NIdentifier& type, NIdentifier id, NExpression *assignmentExpr) :
 		type(type), id(id), assignmentExpr(assignmentExpr) {  }
-//	NVariableDeclaration(NIdentifier &id) : id(id) { type = NIdentifier("char4"); }
 	virtual llvm::Value* codeGen(CodeGenContext& context);
 };
 

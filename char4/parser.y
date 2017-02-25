@@ -84,8 +84,8 @@ func_decl_args: { $$ = new VariableList(); }
 if_block : TIF TLPAREN expr TRPAREN  block  { $$ = new NIfBlock($3, *$5); }
 
 ident : TIDENTIFIER { $$ = new NIdentifier(*$1); delete $1; }
-			|	TIDENTIFIER TDOT TXYZW { $$ = new NIdentifier(*$1, TXYZW); delete $1; }
-			|	TIDENTIFIER TDOT TWZYX { $$ = new NIdentifier(*$1, TWZYX); delete $1; }
+			|	TIDENTIFIER TXYZW { $$ = new NIdentifier(*$1, TXYZW); delete $1; }
+			|	TIDENTIFIER TWZYX { $$ = new NIdentifier(*$1, TWZYX); delete $1; }
 	  ;
 
 numeric : TINTEGER { $$ = new NInteger(atol($1->c_str())); delete $1; }

@@ -39,8 +39,8 @@ llvm::Value* NDouble::codeGen(CodeGenContext& context) {
 }
 
 llvm::Value* NIdentifier::codeGen(CodeGenContext& context) {
-  std::cout<<"Creating variable: "<<idName<<std::endl;
-  return builder.CreateLoad(nullptr, idName);
+  std::cout<<"Creating variable: "<<idName<<" "<<comp<<std::endl;
+//  return builder.CreateLoad(nullptr, idName);
 }
 
 llvm::Value* NIfBlock::codeGen(CodeGenContext& context) {
@@ -57,7 +57,7 @@ llvm::Value* NExpressionStatement::codeGen(CodeGenContext& context) {
 }
 
 llvm::Value* NVariableDeclaration::codeGen(CodeGenContext& context) {
-  std::cout<<"Variable Declaration "<<type.idName<<" "<<id.idName<<std::endl;
+  std::cout<<"Variable Declaration "<<type.idName<<" "<<id.idName<<" "<<id.comp<<std::endl;
   return nullptr;
 }
 
@@ -83,6 +83,14 @@ llvm::Value* NBinaryOperator::codeGen(CodeGenContext& context) {
   return NULL;
 }
 
+
+llvm::Value* NAssignment::codeGen(CodeGenContext& context) {
+  std::cout<<"NAssignment"<<std::endl;
+  lhs.codeGen(context);
+  rhs.codeGen(context);
+  return nullptr;
+}
+
 llvm::Value* NFunctionDeclaration::codeGen(CodeGenContext& context) {
   std::cout<<"In function generation"<<std::endl;
 
@@ -92,13 +100,24 @@ llvm::Value* NFunctionDeclaration::codeGen(CodeGenContext& context) {
 
   llvm::Function *F = llvm::Function::Create(FT, llvm::Function::ExternalLinkage, id.idName, context.module);
 
+  std::vector<llvm::Value*> workItemArgsValue;
+
   unsigned Idx = 0;
   for(auto &Arg : F->args()) {
     Arg.setName(arguments[Idx++]->id.idName);
+    workItemArgsValue.push_back(&Arg);
   }
 
   llvm::BasicBlock *BB = llvm::BasicBlock::Create(ctx, "entry", F);
   builder.SetInsertPoint(BB);
+
+  std::string str = "v_add_f16 $0, $1, $2";
+  std::string cnst = "=v,v,v";
+  llvm::InlineAsm *IA = llvm::InlineAsm::get(FT, str, cnst, true, false);
+
+  llvm::CallInst *Result = builder.CreateCall(IA, workItemArgsValue);
+
+  block.codeGen(context);
 
   return nullptr;
 }
