@@ -29,10 +29,11 @@ public:
 };
 
 class CodeGenContext {
-  std::stack<CodeGenBlock*> blocks;
 public:
+  std::map<std::string, llvm::Value*> locals;
+  std::vector<llvm::Value*> workItemArgsValue;
   llvm::Function *mainFunction;
-
+  llvm::FunctionType *FT;
   llvm::Module* module;
   llvm::BasicBlock *entry;
   CodeGenContext(std::string modName)

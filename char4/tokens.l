@@ -13,6 +13,7 @@
 
 [ \t\n]                 ;
 
+"return"              return TOKEN(TRETURN);
 "__device__"           SAVE_TOKEN; return TDEVICE;
 "char4"                SAVE_TOKEN; return TCHAR4;
 ".xyzw"                 return TOKEN(TXYZW);

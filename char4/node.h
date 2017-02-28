@@ -60,8 +60,8 @@ public:
 class NAssignment : public NExpression {
 public:
 	NIdentifier& lhs;
-	NExpression& rhs;
-	NAssignment(NIdentifier& lhs, NExpression& rhs) :
+	NIdentifier& rhs;
+	NAssignment(NIdentifier& lhs, NIdentifier& rhs) :
 		lhs(lhs), rhs(rhs) {  }
 	virtual llvm::Value* codeGen(CodeGenContext& context);
 };
@@ -111,4 +111,12 @@ public:
 			VariableList arguments, NBlock& block) :
 		id(id), arguments(arguments), block(block) { }
 		virtual llvm::Value* codeGen(CodeGenContext& context);
+};
+
+class NReturnStatement : public NStatement {
+public:
+	NIdentifier& id;
+	NReturnStatement(NIdentifier& id) :
+		id(id) { }
+	virtual llvm::Value* codeGen(CodeGenContext& context);
 };

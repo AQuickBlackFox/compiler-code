@@ -86,8 +86,22 @@ llvm::Value* NBinaryOperator::codeGen(CodeGenContext& context) {
 
 llvm::Value* NAssignment::codeGen(CodeGenContext& context) {
   std::cout<<"NAssignment"<<std::endl;
-  lhs.codeGen(context);
-  rhs.codeGen(context);
+  std::cout<<lhs.idName<<" "<<rhs.idName<<std::endl;
+  std::string shr;
+  std::string mov;
+  std::string cnst = "v,v";
+  if(lhs.comp == TXYZW && rhs.comp == TWZYX){
+    shr = "v_lshrrev_b32 $0, $1";
+    mov = "v_mov_b32_sdwa $0, $1";
+
+  }
+
+  llvm::FunctionType *FT = llvm::FunctionType::get(llvm::Type::getVoidTy(ctx),
+          false);
+  llvm::InlineAsm *IA = llvm::InlineAsm::get(FT, mov, cnst, true, false);
+
+  llvm::CallInst *Result = builder.CreateCall(IA, context.workItemArgsValue);
+
   return nullptr;
 }
 
@@ -96,28 +110,29 @@ llvm::Value* NFunctionDeclaration::codeGen(CodeGenContext& context) {
 
   std::vector<llvm::Type*> argTypes(arguments.size(), llvm::Type::getInt32Ty(ctx));
 
-  llvm::FunctionType *FT = llvm::FunctionType::get(llvm::Type::getInt32Ty(ctx), argTypes, false);
+  context.FT = llvm::FunctionType::get(llvm::Type::getInt32Ty(ctx), argTypes, false);
 
-  llvm::Function *F = llvm::Function::Create(FT, llvm::Function::ExternalLinkage, id.idName, context.module);
-
-  std::vector<llvm::Value*> workItemArgsValue;
+  context.mainFunction = llvm::Function::Create(context.FT, llvm::Function::ExternalLinkage, id.idName, context.module);
 
   unsigned Idx = 0;
-  for(auto &Arg : F->args()) {
+  for(auto &Arg : context.mainFunction->args()) {
+    context.locals[arguments[Idx]->id.idName] = &Arg;
     Arg.setName(arguments[Idx++]->id.idName);
-    workItemArgsValue.push_back(&Arg);
+    context.workItemArgsValue.push_back(&Arg);
   }
 
-  llvm::BasicBlock *BB = llvm::BasicBlock::Create(ctx, "entry", F);
+  llvm::BasicBlock *BB = llvm::BasicBlock::Create(ctx, "entry", context.mainFunction);
   builder.SetInsertPoint(BB);
 
-  std::string str = "v_add_f16 $0, $1, $2";
-  std::string cnst = "=v,v,v";
-  llvm::InlineAsm *IA = llvm::InlineAsm::get(FT, str, cnst, true, false);
-
-  llvm::CallInst *Result = builder.CreateCall(IA, workItemArgsValue);
 
   block.codeGen(context);
 
   return nullptr;
+}
+
+
+llvm::Value* NReturnStatement::codeGen(CodeGenContext& context)
+{
+	std::cout << "Generating return code for " << id.idName<< std::endl;
+	return nullptr;
 }

@@ -31,7 +31,7 @@
 %token <token> TLPAREN TRPAREN TLBRACE TRBRACE TCOMMA TDOT
 %token <token> TPLUS TMINUS TMUL TDIV
 %token <token> TIF TDEVICE TCHAR4
-%token <token> TXYZW TWZYX
+%token <token> TRETURN TXYZW TWZYX
 
 /* Define the type of node our nonterminal symbols represent.
    The types refer to the %union declaration above. Ex: when
@@ -62,6 +62,7 @@ stmts : stmt { $$ = new NBlock(); $$->statements.push_back($<stmt>1); }
 
 stmt : var_decl |  if_block | func_decl
 	 | expr { $$ = new NExpressionStatement(*$1); }
+	 | TRETURN ident { $$ = new NReturnStatement(*$2); }
      ;
 
 block : TLBRACE stmts TRBRACE { $$ = $2; }
@@ -92,7 +93,7 @@ numeric : TINTEGER { $$ = new NInteger(atol($1->c_str())); delete $1; }
 		| TDOUBLE { $$ = new NDouble(atof($1->c_str())); delete $1; }
 		;
 
-expr : ident TEQUAL expr { $$ = new NAssignment(*$<ident>1, *$3); }
+expr : ident TEQUAL ident { $$ = new NAssignment(*$<ident>1, *$<ident>3); }
 	 | ident { $<ident>$ = $1; }
 	 | numeric
          | expr TMUL expr { $$ = new NBinaryOperator(*$1, $2, *$3); }
